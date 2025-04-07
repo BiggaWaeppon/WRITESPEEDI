@@ -19,6 +19,7 @@ def create_app(config='production'):
     if config == 'testing':
         app.config['TESTING'] = True
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///test.db'
+        app.config['SECRET_KEY'] = 'test-secret-key'
     else:
         app.config['SECRET_KEY'] = 'your-secret-key-here'
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///typespeed.db'
@@ -26,7 +27,11 @@ def create_app(config='production'):
     db.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = 'login'
-    
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
     # Routes
     @app.route('/')
     def index():
@@ -194,7 +199,12 @@ def create_app(config='production'):
             'accuracy': score.accuracy,
             'timestamp': score.timestamp.strftime('%Y-%m-%d %H:%M:%S')
         } for score in scores])
-    
+
+    @app.route('/start_test')
+    @login_required
+    def start_test():
+        return render_template('start_test.html')
+
     return app
 
 if __name__ == '__main__':

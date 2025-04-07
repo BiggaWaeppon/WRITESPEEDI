@@ -1,6 +1,6 @@
 import pytest
-from writespeedi.app import create_app, db
-from writespeedi.models import User
+from app import create_app, db
+from models import User
 
 @pytest.fixture
 def app():
@@ -26,16 +26,40 @@ def test_home_page(client):
     assert b'WriteSpeedi' in response.data
 
 def test_register_page(client):
-    response = client.get('/register')
+    response = client.post('/register', json={
+        'username': 'testuser',
+        'password': 'password123'
+    })
     assert response.status_code == 200
-    assert b'Register' in response.data
+    assert b'Registration successful' in response.data
 
 def test_login_page(client):
-    response = client.get('/login')
+    # First register a user
+    client.post('/register', json={
+        'username': 'testuser',
+        'password': 'password123'
+    })
+    
+    # Then try to login
+    response = client.post('/login', json={
+        'username': 'testuser',
+        'password': 'password123'
+    })
     assert response.status_code == 200
-    assert b'Login' in response.data
+    assert b'Login successful' in response.data
 
 def test_start_test_page(client):
+    # First login a user
+    client.post('/register', json={
+        'username': 'testuser',
+        'password': 'password123'
+    })
+    client.post('/login', json={
+        'username': 'testuser',
+        'password': 'password123'
+    })
+    
+    # Then access start_test
     response = client.get('/start_test')
     assert response.status_code == 200
     assert b'Typing Test' in response.data

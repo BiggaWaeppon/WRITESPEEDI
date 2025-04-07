@@ -1,6 +1,6 @@
 import pytest
-from writespeedi.app import create_app, db
-from writespeedi.models import User
+from app import create_app, db
+from models import User
 
 @pytest.fixture(scope='module')
 def test_client():
