@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Web Version
+Web Version/instance/
+Web Version/__pycache__/
+Web Version/*.py[cod]
+Web Version/*.pyo
+Web Version/*.pyd
+Web Version/*.pyc
+
+# Console Version
+Console Version/CONSOLE-APP_CONSOLE-APP/CONSOLE-APP_results.txt
+Console Version/CONSOLE-APP_CONSOLE-APP/__pycache__/
+Console Version/CONSOLE-APP_CONSOLE-APP/*.py[cod]
+Console Version/CONSOLE-APP_CONSOLE-APP/*.pyo
+Console Version/CONSOLE-APP_CONSOLE-APP/*.pyd
+Console Version/CONSOLE-APP_CONSOLE-APP/*.pyc
