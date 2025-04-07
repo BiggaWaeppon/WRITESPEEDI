@@ -1,4 +1,13 @@
 from setuptools import setup, find_packages
+import os
+
+# Get the directory containing this setup.py file
+here = os.path.dirname(os.path.abspath(__file__))
+
+# Read requirements from files
+def read_requirements(file_path):
+    with open(os.path.join(here, file_path)) as f:
+        return f.read().splitlines()
 
 setup(
     name='writespeedi',
@@ -9,17 +18,11 @@ setup(
     url='https://github.com/yourusername/writespeedi',
     packages=find_packages(),
     include_package_data=True,
-    install_requires=[
-        # Web version requirements
-        'Flask==3.0.0',
-        'Flask-SQLAlchemy==3.1.1',
-        'Flask-Login==0.6.3',
-        'bcrypt==4.1.2',
-        'requests==2.31.0',
-        
-        # Console version requirements
-        'colorama==0.4.6'
-    ],
+    install_requires=read_requirements('requirements.txt'),
+    extras_require={
+        'web': read_requirements(os.path.join('Web Version', 'requirements_web.txt')),
+        'console': read_requirements(os.path.join('Console Version', 'requirements.txt'))
+    },
     entry_points={
         'console_scripts': [
             'writespeedi-web=Web Version.app:main',

@@ -42,6 +42,7 @@ Web Version/*.py[cod]
 Web Version/*.pyo
 Web Version/*.pyd
 Web Version/*.pyc
+Web Version/.env
 
 # Console Version
 Console Version/CONSOLE-APP_CONSOLE-APP/CONSOLE-APP_results.txt

@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v2
@@ -18,19 +18,28 @@ jobs:
       with:
         python-version: 3.9
 
-    - name: Install dependencies
+    - name: Install root dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install -r Web Version/requirements_web.txt
-        pip install -r Console Version/requirements.txt
+        pip install -r requirements.txt
 
-    - name: Test with pytest
+    - name: Install Web version dependencies
       run: |
-        cd Web Version
+        cd "Web Version"
+        pip install -r requirements_web.txt
+
+    - name: Install Console version dependencies
+      run: |
+        cd "Console Version"
+        pip install -r requirements.txt
+
+    - name: Test Web version
+      run: |
+        cd "Web Version"
         python -m pytest
 
     - name: Check code style
       run: |
-        cd Web Version
+        cd "Web Version"
         pip install flake8
         flake8 .
