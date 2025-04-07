@@ -1,0 +1,64 @@
+@startuml
+
+' Database Models
+abstract class User {
+    +id: Integer
+    +username: String
+    +password: String
+    +is_admin: Boolean
+    +scores: List<Score>
+    +register(): void
+    +login(): void
+}
+
+abstract class Score {
+    +id: Integer
+    +wpm: Float
+    +accuracy: Float
+    +timestamp: DateTime
+    +user_id: Integer
+}
+
+' Application Classes
+class TypeSpeedTester {
+    +root: CTk
+    +current_user: String
+    +test_started: Boolean
+    +start_time: Integer
+    +words_typed: Integer
+    +correct_words: Integer
+    
+    +__init__(): void
+    +init_database(): void
+    +show_login_frame(): void
+    +login(): void
+    +register(): void
+    +show_main_interface(): void
+    +start_test(): void
+    +update_timer(): void
+    +show_history(): void
+    +logout(): void
+    +run(): void
+}
+
+' Relationships
+User "1" -- "*" Score : has
+TypeSpeedTester "1" -- "1" User : manages
+
+' Notes
+note right of User
+    Represents a user in the system
+    with authentication capabilities
+end note
+
+note right of Score
+    Stores typing test results
+    including WPM and accuracy
+end note
+
+note right of TypeSpeedTester
+    Main application class that
+    handles GUI and test logic
+end note
+
+@enduml
