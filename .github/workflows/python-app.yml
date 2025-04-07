@@ -36,10 +36,15 @@ jobs:
     - name: Test Web version
       run: |
         cd "Web Version"
-        python -m pytest
+        python -m pytest --cov=app --cov-report=term-missing
 
     - name: Check code style
       run: |
         cd "Web Version"
         pip install flake8
         flake8 .
+
+    - name: Run Web version
+      run: |
+        cd "Web Version"
+        python app.py
