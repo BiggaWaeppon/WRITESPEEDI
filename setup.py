@@ -25,8 +25,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'writespeedi-web=Web Version.app:main',
-            'writespeedi-console=Console Version.CONSOLE-APP_CONSOLE-APP.CONSOLE-APP_main:main'
+            'writespeedi-web=app:main'
         ]
     },
     classifiers=[
