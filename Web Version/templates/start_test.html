@@ -4,17 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Typing Test - WriteSpeedi</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
-    <h1>Typing Test</h1>
-    <div id="typing-test">
-        <p id="text-to-type"></p>
-        <textarea id="user-input" rows="5"></textarea>
-        <button id="start-test">Start Test</button>
-        <div id="results">
-            <p>Words per minute: <span id="wpm">0</span></p>
-            <p>Accuracy: <span id="accuracy">0</span>%</p>
+    <div class="container">
+        <nav>
+            <a href="{{ url_for('index') }}">Home</a>
+            <a href="{{ url_for('leaderboard') }}">Leaderboard</a>
+            <a href="{{ url_for('user_history') }}">My History</a>
+            {% if current_user.is_authenticated %}
+                <a href="{{ url_for('logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('login') }}">Login</a>
+            {% endif %}
+        </nav>
+        <div id="typing-test">
+            <h1>Typing Test</h1>
+            <p id="text-to-type"></p>
+            <textarea id="user-input" rows="5" placeholder="Start typing here..." disabled></textarea>
+            <button id="start-test">Start Test</button>
+            <div id="results">
+                <p>Words per minute: <span id="wpm">0</span></p>
+                <p>Accuracy: <span id="accuracy">0</span>%</p>
+            </div>
         </div>
     </div>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
