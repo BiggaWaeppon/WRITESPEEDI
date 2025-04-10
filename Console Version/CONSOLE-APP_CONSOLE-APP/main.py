@@ -1,4 +1,4 @@
-    """
+"""
 CONSOLE-APP_CONSOLE-APP
 Ein einfacher Texteingabetester für die Konsole
 
