@@ -49,10 +49,31 @@ nav a:hover {
 
 /* Text to Type */
 #text-to-type {
-    font-size: 1.2rem;
-    margin-bottom: 1.5rem;
-    line-height: 1.8;
-    color: var(--text-color);
+    font-size: 1.2em;
+    line-height: 1.6;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+#text-to-type span {
+    display: inline-block;
+}
+
+#text-to-type .correct {
+    color: #28a745;
+    font-weight: bold;
+}
+
+#text-to-type .incorrect {
+    color: #dc3545;
+    font-weight: bold;
+    text-decoration: line-through;
+}
+
+#text-to-type .remaining {
+    color: #000;
 }
 
 /* User Input */
