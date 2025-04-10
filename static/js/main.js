@@ -5,39 +5,70 @@ document.addEventListener('DOMContentLoaded', function() {
     const userInput = document.getElementById('user-input');
     const wpmElement = document.getElementById('wpm');
     const accuracyElement = document.getElementById('accuracy');
+    const statsContainer = document.querySelector('.stats-container');
+    const bestWpmElement = document.getElementById('best-wpm');
+    const avgWpmElement = document.getElementById('avg-wpm');
+    const gamesPlayedElement = document.getElementById('games-played');
+    const accuracyStatElement = document.getElementById('accuracy-stat');
 
     let startTime;
     let endTime;
     let isTestRunning = false;
+    let currentText = '';
+
+    // Function to load user statistics
+    async function loadUserStats() {
+        try {
+            const response = await fetch('/user_history');
+            const data = await response.json();
+            
+            if (data.length > 0) {
+                // Calculate statistics
+                const bestWpm = Math.max(...data.map(score => score.wpm));
+                const avgWpm = data.reduce((sum, score) => sum + score.wpm, 0) / data.length;
+                const accuracy = Math.round(data.reduce((sum, score) => sum + score.accuracy, 0) / data.length);
+                
+                // Update statistics display
+                bestWpmElement.textContent = bestWpm;
+                avgWpmElement.textContent = avgWpm.toFixed(1);
+                gamesPlayedElement.textContent = data.length;
+                accuracyStatElement.textContent = accuracy + '%';
+            }
+        } catch (error) {
+            console.error('Error loading user statistics:', error);
+        }
+    }
+
+    // Function to load new typing text
+    async function loadText() {
+        try {
+            const response = await fetch('/get_text');
+            const data = await response.json();
+            currentText = data.text;
+            textToType.textContent = currentText;
+        } catch (error) {
+            console.error('Error fetching typing text:', error);
+        }
+    }
+
+    // Load statistics when page loads
+    loadUserStats();
 
     startButton.addEventListener('click', async function() {
         if (isTestRunning) {
             return;
         }
 
-        try {
-            const response = await fetch('/get_text');
-            const data = await response.json();
-            textToType.textContent = data.text;
+        await loadText();
 
-            userInput.value = '';
-            userInput.disabled = false;
-            userInput.focus();
+        userInput.value = '';
+        userInput.disabled = false;
+        userInput.focus();
 
-            startTime = Date.now();
-            isTestRunning = true;
+        startTime = Date.now();
+        isTestRunning = true;
 
-            startButton.textContent = 'End Test';
-
-            userInput.addEventListener('input', function() {
-                const typedText = userInput.value;
-                const correctChars = calculateCorrectChars(typedText, data.text);
-                const accuracy = (correctChars / data.text.length) * 100;
-                accuracyElement.textContent = Math.round(accuracy);
-            });
-        } catch (error) {
-            console.error('Error fetching typing text:', error);
-        }
+        startButton.textContent = 'End Test';
     });
 
     userInput.addEventListener('input', function() {
@@ -46,9 +77,15 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const typedText = userInput.value;
-        const correctChars = calculateCorrectChars(typedText, textToType.textContent);
-        const accuracy = (correctChars / textToType.textContent.length) * 100;
-        accuracyElement.textContent = Math.round(accuracy);
+        const correctChars = calculateCorrectChars(typedText, currentText);
+        const accuracy = (correctChars / currentText.length) * 100;
+        accuracyElement.textContent = Math.round(accuracy) + '%';
+
+        // Calculate WPM based on time elapsed
+        const timeElapsed = (Date.now() - startTime) / 1000;
+        const wordsTyped = calculateWordsTyped(typedText);
+        const wpm = calculateWPM(wordsTyped, timeElapsed);
+        wpmElement.textContent = Math.round(wpm);
     });
 
     userInput.addEventListener('keydown', function(e) {
@@ -67,6 +104,17 @@ document.addEventListener('DOMContentLoaded', function() {
         return correctChars;
     }
 
+    function calculateWordsTyped(text) {
+        // Split text into words, ignoring punctuation
+        const words = text.trim().split(/\s+/);
+        return words.length;
+    }
+
+    function calculateWPM(wordsTyped, timeElapsed) {
+        // Calculate words per minute
+        return (wordsTyped / (timeElapsed / 60)).toFixed(1);
+    }
+
     async function endTest() {
         if (!isTestRunning) {
             return;
@@ -77,11 +125,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const typedText = userInput.value;
         const wordsTyped = calculateWordsTyped(typedText);
         const wpm = calculateWPM(wordsTyped, timeElapsed);
-        const correctChars = calculateCorrectChars(typedText, textToType.textContent);
-        const totalChars = textToType.textContent.length;
+        const correctChars = calculateCorrectChars(typedText, currentText);
+        const totalChars = currentText.length;
 
         wpmElement.textContent = Math.round(wpm);
-        accuracyElement.textContent = Math.round((correctChars / totalChars) * 100);
+        accuracyElement.textContent = Math.round((correctChars / totalChars) * 100) + '%';
 
         try {
             const response = await fetch('/save_score', {
@@ -90,15 +138,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    wordsTyped: wordsTyped,
-                    timeElapsed: timeElapsed,
-                    correctChars: correctChars,
-                    totalChars: totalChars
+                    wpm: wpm,
+                    accuracy: Math.round((correctChars / totalChars) * 100)
                 })
             });
 
             const result = await response.json();
             console.log(result.message);
+
+            // Reload statistics after saving score
+            loadUserStats();
         } catch (error) {
             console.error('Error saving score:', error);
         }
@@ -106,13 +155,5 @@ document.addEventListener('DOMContentLoaded', function() {
         userInput.disabled = true;
         isTestRunning = false;
         startButton.textContent = 'Start Test';
-    }
-
-    function calculateWordsTyped(text) {
-        return text.trim().split(/\s+/).length;
-    }
-
-    function calculateWPM(wordsTyped, timeElapsed) {
-        return (wordsTyped / (timeElapsed / 60)).toFixed(1);
     }
 });
