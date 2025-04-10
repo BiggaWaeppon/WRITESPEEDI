@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let endTime;
     let isTestRunning = false;
     let currentText = '';
+    let errorPositions = new Set(); // Track positions of errors
 
     // Function to load user statistics
     async function loadUserStats() {
@@ -77,8 +78,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         const typedText = userInput.value;
-        const correctChars = calculateCorrectChars(typedText, currentText);
-        const accuracy = (correctChars / currentText.length) * 100;
+        
+        // Track errors
+        for (let i = 0; i < Math.min(typedText.length, currentText.length); i++) {
+            if (typedText[i] !== currentText[i]) {
+                errorPositions.add(i);
+            }
+        }
+
+        // Calculate accuracy based on error positions
+        const totalChars = currentText.length;
+        const errors = Array.from(errorPositions).length;
+        const accuracy = ((totalChars - errors) / totalChars) * 100;
         accuracyElement.textContent = Math.round(accuracy) + '%';
 
         // Calculate WPM based on time elapsed
@@ -86,6 +97,22 @@ document.addEventListener('DOMContentLoaded', function() {
         const wordsTyped = calculateWordsTyped(typedText);
         const wpm = calculateWPM(wordsTyped, timeElapsed);
         wpmElement.textContent = Math.round(wpm);
+
+        // Update the text display to show errors
+        const textDisplay = document.getElementById('text-to-type');
+        let displayText = '';
+        for (let i = 0; i < Math.max(typedText.length, currentText.length); i++) {
+            if (i < typedText.length && i < currentText.length) {
+                if (typedText[i] === currentText[i]) {
+                    displayText += `<span class="correct">${typedText[i]}</span>`;
+                } else {
+                    displayText += `<span class="incorrect">${typedText[i]}</span>`;
+                }
+            } else if (i < currentText.length) {
+                displayText += `<span class="remaining">${currentText[i]}</span>`;
+            }
+        }
+        textDisplay.innerHTML = displayText;
     });
 
     userInput.addEventListener('keydown', function(e) {
@@ -125,11 +152,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const typedText = userInput.value;
         const wordsTyped = calculateWordsTyped(typedText);
         const wpm = calculateWPM(wordsTyped, timeElapsed);
-        const correctChars = calculateCorrectChars(typedText, currentText);
+        
+        // Calculate final accuracy using error positions
         const totalChars = currentText.length;
+        const errors = Array.from(errorPositions).length;
+        const accuracy = ((totalChars - errors) / totalChars) * 100;
 
         wpmElement.textContent = Math.round(wpm);
-        accuracyElement.textContent = Math.round((correctChars / totalChars) * 100) + '%';
+        accuracyElement.textContent = Math.round(accuracy) + '%';
 
         try {
             const response = await fetch('/save_score', {
@@ -139,7 +169,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 },
                 body: JSON.stringify({
                     wpm: wpm,
-                    accuracy: Math.round((correctChars / totalChars) * 100)
+                    accuracy: Math.round(accuracy)
                 })
             });
 
@@ -155,5 +185,6 @@ document.addEventListener('DOMContentLoaded', function() {
         userInput.disabled = true;
         isTestRunning = false;
         startButton.textContent = 'Start Test';
+        errorPositions.clear(); // Reset error positions for next session
     }
 });
